@@ -3,9 +3,11 @@ import { graphql } from 'gatsby'
 
 import PizzaList from '../components/PizzaList'
 import ToppingsFilter from '../components/ToppingsFilter'
+import SEO from '../components/SEO'
 
-export default function PizzaPage ({ data }) {
+export default function PizzaPage ({ data, pageContext }) {
     return (<>
+        <SEO title={pageContext.topping ? `Pizzas with ${pageContext.topping}` : `All Pizzas`} />
         <ToppingsFilter />
         <PizzaList pizzas={data.pizzas.nodes} />
     </>);

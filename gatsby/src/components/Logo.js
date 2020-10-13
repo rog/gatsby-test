@@ -1,6 +1,6 @@
-import React from 'react';
-import styled from 'styled-components';
-import stripes from '../assets/images/stripes.svg';
+import React from 'react'
+import styled from 'styled-components'
+import stripes from '../assets/images/stripes.svg'
 
 const LogoStyles = styled.div`
   /* This value controls the entire size of the logo*/
@@ -117,5 +117,5 @@ export default function Logo() {
         </h1>
       </div>
     </LogoStyles>
-  );
+  )
 }

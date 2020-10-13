@@ -19,6 +19,14 @@
       "wesbos"
     ],
     "rules": {
+      "prettier/prettier": [
+        "error",
+        {
+          "tabWidth": 2,
+          "semi": false,
+          "singleQuote": true
+        }
+      ],
       "react/prop-types": 0
     }
   },
@@ -57,6 +65,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/wesbos/slicks-slices"
+    "url": "https://github.com/rog/gatsby-test"
   }
 }

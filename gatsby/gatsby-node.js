@@ -1,116 +1,132 @@
 import { promises } from 'fs'
-import path from 'path'
+import path, { resolve } from 'path'
 import 'isomorphic-fetch'
 
-async function turnPizzasIntoPages ({graphql, actions}) {
-    const PizzaTemplate = path.resolve('./src/templates/Pizza.js')
-    const { data } = await graphql(`
-        query {
-            pizzas: allSanityPizza {
-                nodes {
-                    slug {
-                        current
-                    }
-                }
-            }
+async function turnPizzasIntoPages({ graphql, actions }) {
+  const PizzaTemplate = path.resolve('./src/templates/Pizza.js')
+  const { data } = await graphql(`
+    query {
+      pizzas: allSanityPizza {
+        nodes {
+          slug {
+            current
+          }
         }
-    `)
-    data.pizzas.nodes.forEach(pizza => {
-        actions.createPage({
-            path: `pizza/${pizza.slug.current}`,
-            component: PizzaTemplate,
-            context: {
-                rog: 'it\'s cool',
-                slug: pizza.slug.current
-            }
-        })
-    })
-}
-
-async function turnToppingsIntoPages ({graphql, actions}) {
-    const ToppingTemplate = path.resolve('./src/pages/pizza.js')
-    const { data } = await graphql(`
-        query {
-            toppings: allSanityTopping {
-                nodes {
-                    name
-                    id
-                }
-            }
-        }
-    `)
-    data.toppings.nodes.forEach((topping) => {
-        actions.createPage({
-            path: `topping/${topping.name}`,
-            component: ToppingTemplate,
-            context: {
-                topping: topping.name,
-                toppingRegex: `/${topping.name}/i`
-            }
-        })
-    })
-}
-
-async function fetchBeersAndTurnIntoNodes ({actions, createNodeId, createContentDigest}) {
-    const res = await fetch('https://sampleapis.com/beers/api/stouts')
-    const beers = await res.json()
-    for (const beer of beers) {
-        const nodeMeta = {
-            id: createNodeId(`beer-${beer.name}`),
-            parent: null,
-            children: [],
-            internal: {
-                type: 'Beer',
-                mediaType: 'application/json',
-                contentDigest: createContentDigest(beer)
-            }
-        }
-        actions.createNode({
-            ...beer,
-            ...nodeMeta
-        })
+      }
     }
-}
+  `)
 
-async function turnSlicemastersIntoPages ({graphql, actions}) {
-    const { data } = await graphql(`
-        query {
-            slicemasters: allSanityPerson {
-                totalCount
-                nodes {
-                    name
-                    id
-                    slug {
-                        current
-                    }
-                }
-            }
-        }
-    `)
-    const pageSize = parseInt(process.env.GATSBY_PAGE_SIZE)
-    const pageCount = Math.ceil(data.slicemasters.totalCount / pageSize)
-
-    Array.from({length: pageCount}).forEach((_, i) => {
-        actions.createPage({
-            path: `/slicemasters/${i + 1}`,
-            component: path.resolve('./src/pages/slicemasters.js'),
-            context: {
-                skip: i * pageSize,
-                currentPage: i + 1,
-                pageSize
-            }
-        })
+  data.pizzas.nodes.forEach((pizza) => {
+    actions.createPage({
+      path: `pizza/${pizza.slug.current}`,
+      component: PizzaTemplate,
+      context: {
+        rog: "it's cool",
+        slug: pizza.slug.current,
+      },
     })
+  })
 }
 
-export async function sourceNodes (params) {
-    await Promise.all([fetchBeersAndTurnIntoNodes(params)])
+async function turnToppingsIntoPages({ graphql, actions }) {
+  const ToppingTemplate = path.resolve('./src/pages/pizza.js')
+  const { data } = await graphql(`
+    query {
+      toppings: allSanityTopping {
+        nodes {
+          name
+          id
+        }
+      }
+    }
+  `)
+  data.toppings.nodes.forEach((topping) => {
+    actions.createPage({
+      path: `topping/${topping.name}`,
+      component: ToppingTemplate,
+      context: {
+        topping: topping.name,
+        toppingRegex: `/${topping.name}/i`,
+      },
+    })
+  })
 }
 
-export async function createPages (params) {
-    await Promise.all([
-        turnPizzasIntoPages(params),
-        turnToppingsIntoPages(params),
-        turnSlicemastersIntoPages(params)
-    ])
+async function fetchBeersAndTurnIntoNodes({
+  actions,
+  createNodeId,
+  createContentDigest,
+}) {
+  const res = await fetch('https://sampleapis.com/beers/api/stouts')
+  const beers = await res.json()
+  for (const beer of beers) {
+    const nodeMeta = {
+      id: createNodeId(`beer-${beer.name}`),
+      parent: null,
+      children: [],
+      internal: {
+        type: 'Beer',
+        mediaType: 'application/json',
+        contentDigest: createContentDigest(beer),
+      },
+    }
+    actions.createNode({
+      ...beer,
+      ...nodeMeta,
+    })
+  }
+}
+
+async function turnSlicemastersIntoPages({ graphql, actions }) {
+  const { data } = await graphql(`
+    query {
+      slicemasters: allSanityPerson {
+        totalCount
+        nodes {
+          name
+          id
+          slug {
+            current
+          }
+        }
+      }
+    }
+  `)
+  data.slicemasters.nodes.forEach((slicemaster) => {
+    actions.createPage({
+      path: `/slicemaster/${slicemaster.slug.current}`,
+      component: path.resolve('./src/templates/Slicemaster.js'),
+      context: {
+        name: slicemaster.person,
+        slug: slicemaster.slug.current,
+      },
+    })
+  })
+
+  const pageSize = parseInt(process.env.GATSBY_PAGE_SIZE)
+  const pageCount = Math.ceil(data.slicemasters.totalCount / pageSize)
+
+  Array.from({ length: pageCount }).forEach((_, i) => {
+    actions.createPage({
+      path: `/slicemasters/${i + 1}`,
+      component: path.resolve('./src/pages/slicemasters.js'),
+      context: {
+        skip: i * pageSize,
+        currentPage: i + 1,
+        pageSize,
+      },
+    })
+  })
+}
+
+export async function sourceNodes(params) {
+  await Promise.all([fetchBeersAndTurnIntoNodes(params)])
+}
+
+export async function createPages(params) {
+  await Promise.all([
+    turnPizzasIntoPages(params),
+    turnToppingsIntoPages(params),
+    turnSlicemastersIntoPages(params),
+  ])
 }

@@ -1,6 +1,5 @@
-import { createGlobalStyle } from 'styled-components';
-
-import font from '../assets/fonts/frenchfries.woff';
+import { createGlobalStyle } from 'styled-components'
+import font from '../assets/fonts/frenchfries.woff'
 
 const Typography = createGlobalStyle`
   @font-face {
@@ -39,6 +38,6 @@ const Typography = createGlobalStyle`
   .tilt {
     transform: rotate(-2deg);
   }
-`;
+`
 
-export default Typography;
+export default Typography

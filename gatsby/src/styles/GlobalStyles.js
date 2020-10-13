@@ -1,6 +1,6 @@
-import { createGlobalStyle } from 'styled-components';
-import bg from '../assets/images/bg.svg';
-import stripes from '../assets/images/stripes.svg';
+import { createGlobalStyle } from 'styled-components'
+import bg from '../assets/images/bg.svg'
+import stripes from '../assets/images/stripes.svg'
 
 const GlobalStyles = createGlobalStyle`
   :root {
@@ -80,7 +80,6 @@ const GlobalStyles = createGlobalStyle`
     position: relative;
     display: inline-block;
   }
+`
 
-`;
-
-export default GlobalStyles;
+export default GlobalStyles
