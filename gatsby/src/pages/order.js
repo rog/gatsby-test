@@ -6,9 +6,9 @@ import Img from 'gatsby-image'
 import SEO from '../components/SEO'
 import PizzaOrder from '../components/PizzaOrder'
 
-import calculatePizzaPrice from '../utils/calculatePizzaPrice'
 import formatMoney from '../utils/formatMoney'
 import calculateOrderTotal from '../utils/calculateOrderTotal'
+import calculatePizzaPrice from '../utils/calculatePizzaPrice'
 import useForm from '../utils/useForm'
 import usePizza from '../utils/usePizza'
 
@@ -21,17 +21,28 @@ export default function OrderPage({ data }) {
   const { values, updateValue } = useForm({
     name: '',
     email: '',
+    mappleSyrup: '',
   })
-  const { order, addToOrder, removeFromOrder } = usePizza({
+  const {
+    order,
+    addToOrder,
+    removeFromOrder,
+    submitOrder,
+    error,
+    loading,
+    message,
+  } = usePizza({
     pizzas,
-    inputs: values,
+    values,
   })
-
+  if (message) {
+    return <p>Go Eat!</p>
+  }
   return (
     <>
       <SEO title="Order Page" />
-      <OrderStyles>
-        <fieldset>
+      <OrderStyles onSubmit={submitOrder}>
+        <fieldset disabled={loading}>
           <legend>Your Info</legend>
           <label htmlFor="name">Name</label>
           <input
@@ -47,8 +58,16 @@ export default function OrderPage({ data }) {
             value={values.email}
             onChange={updateValue}
           />
+          <input
+            type="text"
+            name="mappleSyrup"
+            id="mappleSyrup"
+            value={values.mappleSyrup}
+            onChange={updateValue}
+            className="mappleSyrup"
+          />
         </fieldset>
-        <fieldset className="menu">
+        <fieldset className="menu" disabled={loading}>
           <legend>Menu</legend>
           {pizzas.map((pizza) => (
             <MenuItemStyles key={pizza.id}>
@@ -65,6 +84,7 @@ export default function OrderPage({ data }) {
                 {['S', 'M', 'L'].map((size) => (
                   <button
                     type="button"
+                    key={size}
                     onClick={() =>
                       addToOrder({
                         id: pizza.id,
@@ -79,7 +99,7 @@ export default function OrderPage({ data }) {
             </MenuItemStyles>
           ))}
         </fieldset>
-        <fieldset className="order">
+        <fieldset className="order" disabled={loading}>
           <legend>Order</legend>
           <PizzaOrder
             order={order}
@@ -87,11 +107,14 @@ export default function OrderPage({ data }) {
             pizzas={pizzas}
           />
         </fieldset>
-        <fieldset>
+        <fieldset disabled={loading}>
           <h3>
             Your Total is {formatMoney(calculateOrderTotal(order, pizzas))}
           </h3>
-          <button type="submit">Order</button>
+          <div>{error ? <p>Error: {error} </p> : ''}</div>
+          <button type="submit" disabled={loading}>
+            {loading ? 'Placing Order' : 'Order'}
+          </button>
         </fieldset>
       </OrderStyles>
     </>
